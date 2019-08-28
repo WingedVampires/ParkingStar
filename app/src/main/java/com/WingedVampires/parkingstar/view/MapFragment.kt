@@ -28,10 +28,6 @@ class MapFragment : Fragment(), CompoundButton.OnCheckedChangeListener, Location
     private var locationClient: AMapLocationClient? = null
     private var clientOption: AMapLocationClientOption? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,21 +35,15 @@ class MapFragment : Fragment(), CompoundButton.OnCheckedChangeListener, Location
     ): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
 
-        initview(savedInstanceState, view)
-        return view
-    }
-
-    private fun initview(savedInstanceState: Bundle?, view: View) {
         mapView = view.findViewById(R.id.mv_map) as MapView
         mapView?.onCreate(savedInstanceState)
-        if (aMap == null) {
-            aMap = mapView?.map
-        }
+        aMap = mapView?.map
         myLocationStyle = MyLocationStyle()//初始化定位蓝点样式类
         aMap?.setMyLocationStyle(myLocationStyle)
         aMap?.uiSettings?.isMyLocationButtonEnabled = true
         aMap?.setLocationSource(this)
         aMap?.setMyLocationEnabled(true)
+        return view
     }
 
     /**
@@ -61,16 +51,15 @@ class MapFragment : Fragment(), CompoundButton.OnCheckedChangeListener, Location
      */
     override fun activate(listener: LocationSource.OnLocationChangedListener) {
         mListener = listener
-        if (locationClient == null) {
-            locationClient = AMapLocationClient(activity)
-            clientOption = AMapLocationClientOption()
-            locationClient?.setLocationListener(this)
-            clientOption?.locationMode =
-                AMapLocationClientOption.AMapLocationMode.Hight_Accuracy//高精度定位
-            clientOption?.isOnceLocationLatest = true//设置单次精确定位
-            locationClient?.setLocationOption(clientOption)
-            locationClient?.startLocation()
-        }
+        locationClient = AMapLocationClient(activity)
+        clientOption = AMapLocationClientOption()
+        locationClient?.setLocationListener(this)
+        clientOption?.locationMode =
+            AMapLocationClientOption.AMapLocationMode.Hight_Accuracy//高精度定位
+        clientOption?.isOnceLocationLatest = false//设置单次精确定位
+        clientOption?.setOnceLocation(true)
+        locationClient?.setLocationOption(clientOption)
+        locationClient?.startLocation()
 
     }
 

@@ -1,6 +1,7 @@
 package com.WingedVampires.parkingstar.view.activities
 
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.design.widget.TabLayout
@@ -16,7 +17,9 @@ import com.WingedVampires.parkingstar.R
 import com.WingedVampires.parkingstar.commons.experimental.extensions.enableLightStatusBarMode
 import com.WingedVampires.parkingstar.view.MapFragment
 import com.WingedVampires.parkingstar.view.PagerAdapter
+import com.WingedVampires.parkingstar.view.ParkingFragment
 import com.WingedVampires.parkingstar.view.UserFragment
+import org.jetbrains.anko.startActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -52,7 +55,8 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager,
             this
         ).apply {
-            add(MapFragment(), "MAP", R.drawable.cd_earth_tab)
+            add(MapFragment(), "LOCATION", R.drawable.cd_earth_tab)
+            add(ParkingFragment(), "PARKING", R.drawable.cd_car_fill)
             add(UserFragment(), "USER", R.drawable.cd_user_tab)
         }
 
@@ -77,10 +81,19 @@ class MainActivity : AppCompatActivity() {
         // 并将ActionBarDrawerToggle中的drawer图标，设置为ActionBar的Home-Button的icon
         //设置侧拉菜单栏
         mNavView.apply {
+            itemTextColor = ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    R.color.ThemeTextColor
+                )
+            )
             itemIconTintList = null
+
             setNavigationItemSelectedListener { item ->
                 Toast.makeText(this@MainActivity, item.title, Toast.LENGTH_LONG).show()
-
+                when (item.itemId) {
+                    R.id.item_bind -> this@MainActivity.startActivity<BindActivity>()
+                }
                 mDlNavButtom.closeDrawers()
                 item.isCheckable = false // 设置选中后的阴影取消
                 true

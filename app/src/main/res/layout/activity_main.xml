@@ -23,8 +23,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:title="Parking"
-            app:titleTextColor="#2B2B2B">
+            app:title="PARKING STAR"
+            app:titleTextColor="@color/ThemeTextColor">
 
         </android.support.v7.widget.Toolbar>
 

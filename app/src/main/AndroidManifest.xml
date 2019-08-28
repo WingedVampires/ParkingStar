@@ -27,7 +27,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.WingedVampires.parkingstar.view.activities.BindActicity"></activity>
+        <activity android:name=".view.activities.BindActivity">
+
+        </activity>
 
         <meta-data
             android:name="com.amap.api.v2.apikey"
@@ -36,10 +38,10 @@
         <service android:name="com.amap.api.location.APSService" />
 
         <activity
-            android:name="com.WingedVampires.parkingstar.view.activities.LoginActivity"
+            android:name=".view.activities.LoginActivity"
             android:label="" />
         <activity
-            android:name="com.WingedVampires.parkingstar.view.activities.MainActivity"
+            android:name=".view.activities.MainActivity"
             android:label="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
