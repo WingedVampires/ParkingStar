@@ -7,11 +7,14 @@
             android:title="CAR BINDING" />
         ​
         <item
-            android:id="@+id/item_nav_menu_star"
-            android:icon="@mipmap/ic_launcher"
-            android:title="2" />
+            android:id="@+id/item_reservation"
+            android:icon="@drawable/cd_reservation"
+            android:title="MY RESERVATION" />
+        <item
+            android:id="@+id/item_month_pay"
+            android:icon="@drawable/cd_month_pay"
+            android:title="MY MONTHLY PAYMENT" />
     </group>
-    ​configuration
 
     <item android:title="CONFIGURATION">
         <menu>

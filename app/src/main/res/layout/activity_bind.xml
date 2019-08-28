@@ -105,7 +105,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:text="BOUND"
-        android:textColor="@color/ThemeTextColor"
+        android:textColor="#80756B32"
         android:textSize="25sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -113,10 +113,10 @@
 
     <View
         android:layout_width="0dp"
-        android:layout_height="1dp"
+        android:layout_height="0.7dp"
         android:layout_marginStart="25dp"
         android:layout_marginEnd="10dp"
-        android:background="@color/ThemeTextColor"
+        android:background="#80756B32"
         app:layout_constraintBottom_toBottomOf="@id/tv_bind_title"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/tv_bind_title"
@@ -124,10 +124,10 @@
 
     <View
         android:layout_width="0dp"
-        android:layout_height="1dp"
+        android:layout_height="0.7dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="25dp"
-        android:background="@color/ThemeTextColor"
+        android:background="#80756B32"
         app:layout_constraintBottom_toBottomOf="@id/tv_bind_title"
         app:layout_constraintLeft_toRightOf="@id/tv_bind_title"
         app:layout_constraintRight_toRightOf="parent"
