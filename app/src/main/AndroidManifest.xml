@@ -27,9 +27,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.activities.BindActivity">
-
-        </activity>
+        <activity android:name=".view.activities.ReservationActivity"></activity>
+        <activity android:name=".view.activities.BindActivity"></activity>
 
         <meta-data
             android:name="com.amap.api.v2.apikey"
@@ -37,12 +36,8 @@
 
         <service android:name="com.amap.api.location.APSService" />
 
-        <activity
-            android:name=".view.activities.LoginActivity"
-            android:label="" />
-        <activity
-            android:name=".view.activities.MainActivity"
-            android:label="">
+        <activity android:name=".view.activities.LoginActivity" />
+        <activity android:name=".view.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

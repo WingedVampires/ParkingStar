@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="6dp"
+    android:layout_marginTop="13dp"
+    android:layout_marginRight="6dp"
+    android:layout_marginBottom="1dp"
+    app:cardElevation="0dp">
+
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="4dp">
+
+        <ImageView
+            android:id="@+id/iv_parking_pic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ms_no_pic"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_parking_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginBottom="2dp"
+            android:ellipsize="end"
+            android:maxEms="9"
+            android:singleLine="true"
+            android:textColor="@color/ThemeTextColor"
+            android:textSize="22sp"
+            app:layout_constraintTop_toBottomOf="@+id/iv_parking_pic"
+            tools:text="南开大学" />
+
+        <ImageView
+            android:id="@+id/iv_parking_position"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:src="@drawable/cd_parking_location"
+            app:layout_constraintLeft_toLeftOf="@+id/tv_parking_title"
+            app:layout_constraintTop_toBottomOf="@+id/tv_parking_title" />
+
+        <TextView
+            android:id="@+id/tv_parking_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:textColor="#999999"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_parking_position"
+            app:layout_constraintLeft_toRightOf="@+id/iv_parking_position"
+            app:layout_constraintTop_toTopOf="@+id/iv_parking_position" />
+
+        <ImageView
+            android:id="@+id/iv_parking_num"
+            android:layout_width="14dp"
+            android:layout_height="11dp"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/cd_parking_num"
+            app:layout_constraintLeft_toLeftOf="@+id/iv_parking_position"
+            app:layout_constraintTop_toBottomOf="@id/tv_parking_position" />
+
+        <TextView
+            android:id="@+id/tv_parking_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:ellipsize="end"
+            android:maxEms="7"
+            android:singleLine="true"
+            android:textColor="#999999"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_parking_num"
+            app:layout_constraintLeft_toRightOf="@+id/iv_parking_num"
+            app:layout_constraintTop_toTopOf="@+id/iv_parking_num" />
+
+        <ImageView
+            android:id="@+id/iv_parking_reservation"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:src="@drawable/cd_reveration"
+            app:layout_constraintLeft_toLeftOf="@+id/iv_parking_num"
+            app:layout_constraintTop_toBottomOf="@+id/tv_parking_num" />
+
+        <TextView
+            android:id="@+id/tv_parking_reservation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:ellipsize="end"
+            android:maxEms="12"
+            android:singleLine="true"
+            android:textColor="#999999"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_parking_reservation"
+            app:layout_constraintLeft_toRightOf="@+id/iv_parking_reservation"
+            app:layout_constraintTop_toTopOf="@+id/iv_parking_reservation"
+            tools:text="支持预定" />
+
+
+        <ImageView
+            android:id="@+id/iv_parking_enter"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="3dp"
+            android:src="@drawable/cd_enter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.v7.widget.CardView>

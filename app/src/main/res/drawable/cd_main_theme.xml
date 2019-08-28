@@ -6,8 +6,8 @@
         android:angle="90"
         android:centerX="0.5"
         android:centerY="0.5"
-        android:endColor="#FFE16E"
-        android:startColor="#FBFCB5"
+        android:endColor="#FDE07A"
+        android:startColor="#FEFFAB"
         android:type="linear" />
 
 </shape>
