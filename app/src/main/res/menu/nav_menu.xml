@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/item_nav_menu_news"
+            android:icon="@drawable/cd_car"
+            android:title="CAR BINDING" />
+        ​
+        <item
+            android:id="@+id/item_nav_menu_star"
+            android:icon="@mipmap/ic_launcher"
+            android:title="2" />
+    </group>
+    ​configuration
+
+    <item android:title="CONFIGURATION">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/item_nav_menu_set"
+                    android:icon="@drawable/cd_set"
+                    android:title="SETTING" />
+
+                <item
+                    android:id="@+id/item_nav_menu_relate"
+                    android:icon="@drawable/cd_relate"
+                    android:title="ABOUT" />
+            </group>
+
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/item_nav_menu_share"
+                    android:icon="@drawable/cd_logout"
+                    android:title="LOGOUT" />
+
+            </group>
+
+
+        </menu>
+
+    </item>
+</menu>
