@@ -1,12 +1,16 @@
 package com.WingedVampires.parkingstar.model
 
+import android.content.Context
 import com.amap.api.maps.model.LatLng
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+
 object ParkingUtils {
+
+    const val PAKING_INDEX = "parkingIndex"
 
     fun GCJ2BD(bd: LatLng): LatLng {
         val x = bd.longitude
@@ -27,6 +31,20 @@ object ParkingUtils {
         val lng = z * cos(theta)//lng
         val lat = z * sin(theta)//lat
         return LatLng(lat, lng)
+    }
+
+    fun isAvilible(context: Context, packageName: String): Boolean {
+        val packageManager = context.getPackageManager()//获取packagemanager
+        val pinfo = packageManager.getInstalledPackages(0)//获取所有已安装程序的包信息
+        val pName = ArrayList<String>()//用于存储所有已安装程序的包名
+        //从pinfo中将包名字逐一取出，压入pName list中
+        if (pinfo != null) {
+            for (i in pinfo!!.indices) {
+                val pn = pinfo!!.get(i).packageName
+                pName.add(pn)
+            }
+        }
+        return pName.contains(packageName)//判断pName中是否有目标程序的包名，有TRUE，没有FALSE
     }
 
 }

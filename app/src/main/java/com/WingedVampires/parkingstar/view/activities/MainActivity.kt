@@ -15,6 +15,7 @@ import android.view.Window
 import android.widget.Toast
 import com.WingedVampires.parkingstar.R
 import com.WingedVampires.parkingstar.commons.experimental.extensions.enableLightStatusBarMode
+import com.WingedVampires.parkingstar.commons.experimental.preference.CommonPreferences
 import com.WingedVampires.parkingstar.view.MapFragment
 import com.WingedVampires.parkingstar.view.PagerAdapter
 import com.WingedVampires.parkingstar.view.ParkingFragment
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         mViewPager.adapter = mPagerAdapter
+        mViewPager.offscreenPageLimit = 5
         mTabLayout.apply {
             setupWithViewPager(mViewPager)
             tabGravity = TabLayout.GRAVITY_FILL
@@ -93,6 +95,12 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, item.title, Toast.LENGTH_LONG).show()
                 when (item.itemId) {
                     R.id.item_bind -> this@MainActivity.startActivity<BindActivity>()
+                    R.id.item_logout -> {
+                        CommonPreferences.clear()
+                        this@MainActivity.startActivity<LoginActivity>()
+                        finish()
+                    }
+
                 }
                 mDlNavButtom.closeDrawers()
                 item.isCheckable = false // 设置选中后的阴影取消

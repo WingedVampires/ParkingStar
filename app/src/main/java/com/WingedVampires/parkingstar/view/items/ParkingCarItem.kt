@@ -8,9 +8,11 @@ import android.widget.TextView
 import com.WingedVampires.parkingstar.R
 import com.WingedVampires.parkingstar.commons.ui.rec.Item
 import com.WingedVampires.parkingstar.commons.ui.rec.ItemController
+import org.jetbrains.anko.backgroundResource
 import org.jetbrains.anko.layoutInflater
 
-class ParkingCarItem(val block: (View) -> Unit) : Item {
+class ParkingCarItem(val num: Int, val isPre: Boolean, val block: (View, ViewHolder) -> Unit) :
+    Item {
 
     override val controller: ItemController
         get() = Controller
@@ -27,7 +29,15 @@ class ParkingCarItem(val block: (View) -> Unit) : Item {
             holder as ViewHolder
             item as ParkingCarItem
 
-            holder.itemView.setOnClickListener { item.block(it) }
+            holder.apply {
+                if (item.isPre) {
+                    add.visibility = View.GONE
+                    not.visibility = View.VISIBLE
+                    pic.backgroundResource = R.drawable.cd_car4
+                }
+                add.setOnClickListener { item.block(it, this) }
+                position.text = "${item.num}号车位"
+            }
         }
 
     }
@@ -40,4 +50,9 @@ class ParkingCarItem(val block: (View) -> Unit) : Item {
     }
 }
 
-fun MutableList<Item>.parkingCarItem(block: (View) -> Unit = { }) = add(ParkingCarItem(block))
+fun MutableList<Item>.parkingCarItem(
+    num: Int,
+    isPre: Boolean,
+    block: (View, ViewHolder: ParkingCarItem.ViewHolder) -> Unit = { _, _ -> }
+) =
+    add(ParkingCarItem(num, isPre, block))

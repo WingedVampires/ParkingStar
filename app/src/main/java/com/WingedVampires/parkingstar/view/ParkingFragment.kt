@@ -9,11 +9,14 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.WingedVampires.parkingstar.R
 import com.WingedVampires.parkingstar.commons.experimental.extensions.QuietCoroutineExceptionHandler
 import com.WingedVampires.parkingstar.commons.ui.rec.withItems
+import com.WingedVampires.parkingstar.model.ParkingUtils
 import com.WingedVampires.parkingstar.view.activities.ReservationActivity
 import com.WingedVampires.parkingstar.view.items.parkingItem
+import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -40,39 +43,62 @@ class ParkingFragment : Fragment() {
                     R.color.ThemeTextColor
                 )
             )
-            setOnRefreshListener(this@ParkingFragment::refreshParking)
+            setOnRefreshListener(this@ParkingFragment::refreshParkings)
         }
 
         recyclerView.layoutManager = layoutManager
-        refreshParking()
+        refreshParkings()
 
 
         return view
     }
 
-    private fun refreshParking() {
+    private fun refreshParkings() {
         GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
             itemManager.refreshAll {
-                parkingItem("南开大学", "在这里", "21", true) {
-                    it.context.startActivity<ReservationActivity>()
+                parkingItem("南开大学", "在这里", "21", true) { view, item ->
+                    view.context.startActivity<ReservationActivity>(
+                        ParkingUtils.PAKING_INDEX to itemManager.indexOf(
+                            item
+                        )
+                    )
+
                 }
-                parkingItem("天津大学", "在这里", "81", true) {
-                    it.context.startActivity<ReservationActivity>()
+                parkingItem("南开大学", "在这里", "21", true) { view, item ->
+                    view.context.startActivity<ReservationActivity>(
+                        ParkingUtils.PAKING_INDEX to itemManager.indexOf(
+                            item
+                        )
+                    )
+
                 }
-                parkingItem("财经大学", "在这里", "11", false) {
-                    it.context.startActivity<ReservationActivity>()
+                parkingItem("南开大学", "在这里", "21", true) { view, item ->
+                    view.context.startActivity<ReservationActivity>(
+                        ParkingUtils.PAKING_INDEX to itemManager.indexOf(
+                            item
+                        )
+                    )
+
                 }
-                parkingItem("南开大学2", "在这里", "21", true) {
-                    it.context.startActivity<ReservationActivity>()
+                parkingItem("南开大学", "在这里", "21", true) { view, item ->
+                    view.context.startActivity<ReservationActivity>(
+                        ParkingUtils.PAKING_INDEX to itemManager.indexOf(
+                            item
+                        )
+                    )
+
                 }
-                parkingItem("天津大学2", "在这里", "81", true) {
-                    it.context.startActivity<ReservationActivity>()
+                parkingItem("南开大学", "在这里", "21", true) { view, item ->
+                    view.context.startActivity<ReservationActivity>(
+                        ParkingUtils.PAKING_INDEX to itemManager.indexOf(
+                            item
+                        )
+                    )
+
                 }
-                parkingItem("财经大学2", "在这里", "11", false) {
-                    it.context.startActivity<ReservationActivity>()
-                }
-                swipeRefreshLayout.isRefreshing = false
             }
+            Toasty.success(this@ParkingFragment.context!!, "加载完成", Toast.LENGTH_SHORT).show()
+            swipeRefreshLayout.isRefreshing = false
         }
     }
 }

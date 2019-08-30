@@ -15,7 +15,7 @@ class ParkingItem(
     val position: String,
     val num: String,
     val isReservation: Boolean,
-    val block: (View) -> Unit
+    val block: (View, Item) -> Unit
 ) : Item {
     override val controller: ItemController
         get() = Controller
@@ -32,7 +32,7 @@ class ParkingItem(
             item as ParkingItem
 
             holder.apply {
-                enter.setOnClickListener { item.block(it) }
+                enter.setOnClickListener { item.block(it, item) }
                 title.text = item.title
                 position.text = item.position
                 num.text = item.num
@@ -57,5 +57,5 @@ fun MutableList<Item>.parkingItem(
     position: String,
     num: String,
     isReservation: Boolean,
-    block: (View) -> Unit = {}
+    block: (View, Item) -> Unit = { _, _ -> }
 ) = add(ParkingItem(title, position, num, isReservation, block))

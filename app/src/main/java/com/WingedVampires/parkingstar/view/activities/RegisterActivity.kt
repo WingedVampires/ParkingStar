@@ -1,6 +1,5 @@
 package com.WingedVampires.parkingstar.view.activities
 
-
 import android.content.Context
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
@@ -10,55 +9,52 @@ import android.view.View
 import android.view.Window
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.WingedVampires.parkingstar.R
 import com.WingedVampires.parkingstar.commons.experimental.extensions.enableLightStatusBarMode
-import com.WingedVampires.parkingstar.commons.experimental.preference.CommonPreferences
-import com.example.studentsmanager.commons.experimental.CommonContext
 import es.dmoral.toasty.Toasty
-import org.jetbrains.anko.startActivity
 
-class LoginActivity : AppCompatActivity() {
+class RegisterActivity : AppCompatActivity() {
 
     lateinit var mLoading: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_register)
         enableLightStatusBarMode(true)
         window.statusBarColor = ContextCompat.getColor(this, R.color.ThemeColor)
 
-        CommonContext.registerApplication(this@LoginActivity.application)
+        val registerButton = findViewById<TextView>(R.id.tv_register_button)
+        val usernameInput = findViewById<EditText>(R.id.et_register_account_input)
+        val passwordInput = findViewById<EditText>(R.id.et_register_password_input)
+        val npasswordInput = findViewById<EditText>(R.id.et_register_npassword_input)
+        mLoading = findViewById(R.id.cl_register_loading)
 
-        val loginButton = findViewById<ImageView>(R.id.iv_login_button)
-        val registerText = findViewById<TextView>(R.id.tv_login_register)
-        val usernameInput = findViewById<EditText>(R.id.et_login_account_input)
-        val passwordInput = findViewById<EditText>(R.id.et_login_password_input)
-        mLoading = findViewById(R.id.cl_login_loading)
 
-        if (CommonPreferences.isLogin) {
-            startActivity<MainActivity>()
-            finish()
-        }
-
-        loginButton.setOnClickListener {
+        registerButton.setOnClickListener {
             usernameInput.isFocusable = false
             usernameInput.isFocusableInTouchMode = true
             passwordInput.isFocusable = false
             passwordInput.isFocusableInTouchMode = true
+            npasswordInput.isFocusable = false
+            npasswordInput.isFocusableInTouchMode = true
             hideSoftInputMethod()
 
-            if (usernameInput.text.isNotBlank() && passwordInput.text.isNotBlank()) {
-                if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
-
-                mLoading.visibility = View.GONE
-                Toasty.success(this, "登录成功", Toast.LENGTH_SHORT).show()
-                it.context.startActivity<MainActivity>()
-                CommonPreferences.isLogin = true
-                finish()
+            if (usernameInput.text.isNotBlank() && passwordInput.text.isNotBlank() && npasswordInput.text.isNotBlank()) {
+                if (passwordInput.text == npasswordInput.text) {
+                    if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
+                    mLoading.visibility = View.GONE
+                    Toasty.success(this, "注册成功", Toast.LENGTH_SHORT).show()
+                    onBackPressed()
+                } else {
+                    Toasty.warning(
+                        this,
+                        "密码填写有误",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } else {
                 Toasty.warning(
                     this,
@@ -68,15 +64,6 @@ class LoginActivity : AppCompatActivity() {
             }
 
 
-        }
-
-        registerText.setOnClickListener {
-            usernameInput.isFocusable = false
-            usernameInput.isFocusableInTouchMode = true
-            passwordInput.isFocusable = false
-            passwordInput.isFocusableInTouchMode = true
-
-            it.context.startActivity<RegisterActivity>()
         }
     }
 
