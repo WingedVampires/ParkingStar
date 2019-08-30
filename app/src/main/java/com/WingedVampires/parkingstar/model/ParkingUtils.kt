@@ -1,6 +1,7 @@
 package com.WingedVampires.parkingstar.model
 
 import android.content.Context
+import com.WingedVampires.parkingstar.commons.experimental.preference.hawk
 import com.amap.api.maps.model.LatLng
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -11,6 +12,8 @@ import kotlin.math.sqrt
 object ParkingUtils {
 
     const val PAKING_INDEX = "parkingIndex"
+
+    var cars by hawk("USER_CARS", arrayListOf<String>())
 
     fun GCJ2BD(bd: LatLng): LatLng {
         val x = bd.longitude

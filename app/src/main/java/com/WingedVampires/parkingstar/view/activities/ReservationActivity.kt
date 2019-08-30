@@ -45,6 +45,7 @@ class ReservationActivity : AppCompatActivity() {
     private lateinit var mLoading: ConstraintLayout
     lateinit var recyclerView: RecyclerView
     private val itemManager by lazy { recyclerView.withItems(mutableListOf()) }
+    private var selectedCar = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,10 +99,16 @@ class ReservationActivity : AppCompatActivity() {
             reservationList.visibility =
                 if (reservationList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
+
         monthlyButton.setOnClickListener {
             val dialog = AlertDialog.Builder(this@ReservationActivity)
-                .setMessage("Do you want to park this parking lot for a month?")
+                .setTitle("Do you want to park this parking lot for a month?")
                 .setCancelable(false)
+                .setSingleChoiceItems(
+                    ParkingUtils.cars.toArray(arrayOf<String>()), 0
+                ) { dialog, which ->
+                    selectedCar = which
+                }
                 .setPositiveButton("No, I think about it again.") { _, _ ->
 
                 }
@@ -109,28 +116,8 @@ class ReservationActivity : AppCompatActivity() {
 
                 }
                 .create()
-            dialog.show()
 
-            try {
-                val mAlert: Field = AlertDialog::class.java.getDeclaredField("mAlert")
-                mAlert.isAccessible = true
-                val mAlertController = mAlert.get(dialog)
-                val mMessage: Field =
-                    mAlertController.javaClass.getDeclaredField("mMessageView")
-                mMessage.isAccessible = true
-                val mMessageView = mMessage.get(mAlertController) as TextView
-                mMessageView.setTextColor(
-                    ContextCompat.getColor(
-                        this@ReservationActivity,
-                        R.color.ThemeTextColor
-                    )
-                )
-                mMessageView.textSize = 25f
-            } catch (e: IllegalAccessException) {
-                e.printStackTrace()
-            } catch (e: NoSuchFieldException) {
-                e.printStackTrace()
-            }
+            dialog.show()
         }
     }
 

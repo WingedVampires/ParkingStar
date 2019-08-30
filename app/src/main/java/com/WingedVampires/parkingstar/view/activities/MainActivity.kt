@@ -95,7 +95,9 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, item.title, Toast.LENGTH_LONG).show()
                 when (item.itemId) {
                     R.id.item_bind -> this@MainActivity.startActivity<BindActivity>()
-                    R.id.item_logout -> {
+                    R.id.item_reservation -> this@MainActivity.startActivity<MyReservationActivity>()
+                    R.id.item_logout
+                    -> {
                         CommonPreferences.clear()
                         this@MainActivity.startActivity<LoginActivity>()
                         finish()

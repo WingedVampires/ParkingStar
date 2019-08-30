@@ -27,8 +27,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.activities.RegisterActivity"></activity>
-        <activity android:name=".view.activities.ReservationActivity"></activity>
+        <activity android:name=".view.activities.MyMonthlyActivity"></activity>
+        <activity android:name=".view.activities.MyReservationActivity" />
+        <activity android:name=".view.activities.RegisterActivity" />
+        <activity android:name=".view.activities.ReservationActivity" />
         <activity android:name=".view.activities.BindActivity" />
 
         <meta-data
@@ -44,7 +46,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.activities.MainActivity"></activity>
+        <activity android:name=".view.activities.MainActivity" />
     </application>
 
 </manifest>

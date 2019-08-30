@@ -8,7 +8,6 @@ object CommonPreferences {
 
     var usetId by hawk("user_id", "")
 
-
     fun clear() {
         Hawk.deleteAll()
         CommonContext.defaultSharedPreferences.edit().clear().apply()
