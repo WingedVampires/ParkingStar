@@ -45,5 +45,35 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ab_myreservation" />
 
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_myreservation_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ab_myreservation">
 
+        <ProgressBar
+            android:id="@+id/pb_assistance_loading"
+            android:layout_width="52dp"
+            android:layout_height="17dp"
+            android:indeterminate="false"
+            android:indeterminateDrawable="@drawable/progressbar_bar_loading"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="13dp"
+            android:text="跪着加载中..."
+            android:textColor="#b4a972"
+            android:textSize="10sp"
+            app:layout_constraintLeft_toLeftOf="@id/pb_assistance_loading"
+            app:layout_constraintTop_toBottomOf="@id/pb_assistance_loading" />
+
+    </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

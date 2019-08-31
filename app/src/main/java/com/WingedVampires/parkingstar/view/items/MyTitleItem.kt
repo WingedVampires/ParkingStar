@@ -10,7 +10,8 @@ import com.WingedVampires.parkingstar.commons.ui.rec.Item
 import com.WingedVampires.parkingstar.commons.ui.rec.ItemController
 import org.jetbrains.anko.layoutInflater
 
-class MyTitleItem() : Item {
+class MyTitleItem(val title: String, val block: (ViewHolder, MyTitleItem) -> Unit) : Item {
+    var isOpen = false
     override val controller: ItemController
         get() = Controller
 
@@ -23,13 +24,25 @@ class MyTitleItem() : Item {
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, item: Item) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            item as MyTitleItem
+            holder as ViewHolder
+
+            holder.apply {
+                title.text = item.title
+                more.setOnClickListener { item.block(holder, item) }
+            }
         }
 
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val delete: ImageView = itemView.findViewById(R.id.iv_bind_delete)
-        val number: TextView = itemView.findViewById(R.id.tv_bind_number)
+        val more: ImageView = itemView.findViewById(R.id.iv_mytitle_more)
+        val title: TextView = itemView.findViewById(R.id.tv_mytitle_title)
     }
 }
+
+fun MutableList<Item>.myTitleItem(
+    title: String,
+    block: (MyTitleItem.ViewHolder, MyTitleItem) -> Unit = { _, _ -> }
+) =
+    add(MyTitleItem(title, block))

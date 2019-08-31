@@ -21,6 +21,7 @@
         android:layout_marginStart="5dp"
         android:layout_marginTop="13dp"
         android:layout_marginBottom="13dp"
+        android:textColor="@color/ThemeTextColor"
         android:text="进行中"
         android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,6 +29,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
+        android:id="@+id/iv_mytitle_more"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginEnd="15dp"

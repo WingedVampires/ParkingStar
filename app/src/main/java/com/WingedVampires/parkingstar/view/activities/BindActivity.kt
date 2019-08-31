@@ -12,9 +12,13 @@ import android.view.Window
 import android.widget.ImageView
 import android.widget.Toast
 import com.WingedVampires.parkingstar.R
+import com.WingedVampires.parkingstar.commons.experimental.cache.RefreshState
 import com.WingedVampires.parkingstar.commons.experimental.extensions.QuietCoroutineExceptionHandler
+import com.WingedVampires.parkingstar.commons.experimental.extensions.awaitAndHandle
 import com.WingedVampires.parkingstar.commons.experimental.extensions.enableLightStatusBarMode
 import com.WingedVampires.parkingstar.commons.ui.rec.withItems
+import com.WingedVampires.parkingstar.model.LiveParkingManager
+import com.WingedVampires.parkingstar.model.ParkingService
 import com.WingedVampires.parkingstar.view.items.bindItem
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +40,7 @@ class BindActivity : AppCompatActivity() {
 
         val mToolBar = findViewById<Toolbar>(R.id.tb_bind)
         val refresh = findViewById<ImageView>(R.id.iv_bind_refresh)
+        val add = findViewById<ImageView>(R.id.iv_bind_add)
         mLoading = findViewById(R.id.cl_bind_loading)
         recyclerView = findViewById(R.id.rv_bind)
 
@@ -50,30 +55,55 @@ class BindActivity : AppCompatActivity() {
 
         refreshBound()
 
+        LiveParkingManager.getParkingLiveData().observeForever { refreshState ->
+            if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
+            when (refreshState) {
+                is RefreshState.Success -> refreshState.message.apply {
+                    val cars = this.cars
+                    Toasty.success(this@BindActivity, "加载完成", Toast.LENGTH_SHORT).show()
+                    itemManager.refreshAll {
+                        cars.forEach { car ->
+                            bindItem(car.car_id) {
+                                if (mLoading.visibility != View.VISIBLE) mLoading.visibility =
+                                    View.VISIBLE
+                                GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+                                    val result =
+                                        ParkingService.deleteCar(car.car_id).awaitAndHandle {
+                                            it.printStackTrace()
+                                            Toasty.error(
+                                                this@BindActivity,
+                                                "删除失败",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } ?: return@launch
+
+                                    Toasty.success(
+                                        this@BindActivity,
+                                        result.message,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                }
+                                mLoading.visibility = View.GONE
+                                refreshBound()
+                            }
+                        }
+                    }
+                }
+            }
+            mLoading.visibility = View.GONE
+        }
+
+        add.setOnClickListener {
+
+        }
+
         refresh.setOnClickListener { refreshBound() }
 
 
     }
 
     private fun refreshBound() {
-        GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
-            if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
-
-            val list: List<String> = mutableListOf<String>("津CH3178", "沪oo8888")
-
-            mLoading.visibility = View.GONE
-            Toasty.success(this@BindActivity, "加载完成", Toast.LENGTH_SHORT).show()
-            itemManager.refreshAll {
-                list.forEach {
-                    bindItem(it) {
-                        GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
-
-                        }
-
-                        refreshBound()
-                    }
-                }
-            }
-        }
+        LiveParkingManager.refreshParkingInfo(true)
     }
 }

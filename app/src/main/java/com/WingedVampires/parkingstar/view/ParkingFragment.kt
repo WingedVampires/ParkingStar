@@ -11,15 +11,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.WingedVampires.parkingstar.R
-import com.WingedVampires.parkingstar.commons.experimental.extensions.QuietCoroutineExceptionHandler
+import com.WingedVampires.parkingstar.commons.experimental.cache.RefreshState
 import com.WingedVampires.parkingstar.commons.ui.rec.withItems
+import com.WingedVampires.parkingstar.model.LiveParkingManager
 import com.WingedVampires.parkingstar.model.ParkingUtils
 import com.WingedVampires.parkingstar.view.activities.ReservationActivity
 import com.WingedVampires.parkingstar.view.items.parkingItem
 import es.dmoral.toasty.Toasty
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.jetbrains.anko.startActivity
 
 class ParkingFragment : Fragment() {
@@ -49,56 +47,47 @@ class ParkingFragment : Fragment() {
         recyclerView.layoutManager = layoutManager
         refreshParkings()
 
+        LiveParkingManager.getParkingLiveData().observeForever { refreshState ->
+            when (refreshState) {
+                is RefreshState.Success -> refreshState.message.apply {
+                    this@ParkingFragment.context?.let {
+                        Toasty.success(it, "加载完成", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    swipeRefreshLayout.isRefreshing = false
 
+                    val parkings = this.parkings
+                    itemManager.refreshAll {
+                        parkings.forEach {
+                            parkingItem(
+                                it.parking_name,
+                                it.parking_position,
+                                it.total_parkingSpace.toString(),
+                                it.is_preserve
+                            ) { view, _ ->
+                                view.context.startActivity<ReservationActivity>(
+                                    ParkingUtils.PAKING_INDEX to it.parking_id
+                                )
+                            }
+                        }
+                    }
+                }
+                is RefreshState.Refreshing -> {
+                    swipeRefreshLayout.isRefreshing = true
+                }
+                is RefreshState.Failure -> {
+                    this@ParkingFragment.context?.let {
+                        Toasty.success(it, "加载失败", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    swipeRefreshLayout.isRefreshing = false
+                }
+            }
+        }
         return view
     }
 
     private fun refreshParkings() {
-        GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
-            itemManager.refreshAll {
-                parkingItem("南开大学", "在这里", "21", true) { view, item ->
-                    view.context.startActivity<ReservationActivity>(
-                        ParkingUtils.PAKING_INDEX to itemManager.indexOf(
-                            item
-                        )
-                    )
-
-                }
-                parkingItem("南开大学", "在这里", "21", true) { view, item ->
-                    view.context.startActivity<ReservationActivity>(
-                        ParkingUtils.PAKING_INDEX to itemManager.indexOf(
-                            item
-                        )
-                    )
-
-                }
-                parkingItem("南开大学", "在这里", "21", true) { view, item ->
-                    view.context.startActivity<ReservationActivity>(
-                        ParkingUtils.PAKING_INDEX to itemManager.indexOf(
-                            item
-                        )
-                    )
-
-                }
-                parkingItem("南开大学", "在这里", "21", true) { view, item ->
-                    view.context.startActivity<ReservationActivity>(
-                        ParkingUtils.PAKING_INDEX to itemManager.indexOf(
-                            item
-                        )
-                    )
-
-                }
-                parkingItem("南开大学", "在这里", "21", true) { view, item ->
-                    view.context.startActivity<ReservationActivity>(
-                        ParkingUtils.PAKING_INDEX to itemManager.indexOf(
-                            item
-                        )
-                    )
-
-                }
-            }
-            Toasty.success(this@ParkingFragment.context!!, "加载完成", Toast.LENGTH_SHORT).show()
-            swipeRefreshLayout.isRefreshing = false
-        }
+        LiveParkingManager.refreshParkingInfo()
     }
 }

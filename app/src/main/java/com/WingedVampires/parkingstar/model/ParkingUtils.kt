@@ -13,7 +13,7 @@ object ParkingUtils {
 
     const val PAKING_INDEX = "parkingIndex"
 
-    var cars by hawk("USER_CARS", arrayListOf<String>())
+    var cars by hawk("USER_CARS", arrayListOf<Car>())
 
     fun GCJ2BD(bd: LatLng): LatLng {
         val x = bd.longitude

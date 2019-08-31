@@ -14,10 +14,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.WingedVampires.parkingstar.R
+import com.WingedVampires.parkingstar.commons.experimental.extensions.QuietCoroutineExceptionHandler
+import com.WingedVampires.parkingstar.commons.experimental.extensions.awaitAndHandle
 import com.WingedVampires.parkingstar.commons.experimental.extensions.enableLightStatusBarMode
 import com.WingedVampires.parkingstar.commons.experimental.preference.CommonPreferences
+import com.WingedVampires.parkingstar.model.ParkingService
 import com.example.studentsmanager.commons.experimental.CommonContext
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.startActivity
 
 class LoginActivity : AppCompatActivity() {
@@ -51,14 +57,41 @@ class LoginActivity : AppCompatActivity() {
             passwordInput.isFocusableInTouchMode = true
             hideSoftInputMethod()
 
-            if (usernameInput.text.isNotBlank() && passwordInput.text.isNotBlank()) {
+            if (usernameInput.text.toString().isNotBlank() && passwordInput.text.toString().isNotBlank()) {
                 if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
+                GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+                    val login = ParkingService.login(
+                        usernameInput.text.toString(),
+                        passwordInput.text.toString()
+                    ).awaitAndHandle {
+                        it.printStackTrace()
+                        Toasty.error(this@LoginActivity, "登录失败", Toast.LENGTH_SHORT).show()
+                        mLoading.visibility = View.GONE
+                    }
+                    Toasty.success(
+                        this@LoginActivity,
+                        login?.message.toString(),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    mLoading.visibility = View.GONE
 
-                mLoading.visibility = View.GONE
-                Toasty.success(this, "登录成功", Toast.LENGTH_SHORT).show()
-                it.context.startActivity<MainActivity>()
-                CommonPreferences.isLogin = true
-                finish()
+                    if (login == null || login.error_code != -1) {
+                        return@launch
+                    }
+                    val user = login?.data?.get(0) ?: return@launch
+                    CommonPreferences.apply {
+                        userId = user.user_id
+                        userName = user.user_name
+                        password = user.password
+                        rank = user.rank
+                    }
+
+                    it.context.startActivity<MainActivity>()
+                    CommonPreferences.isLogin = true
+                    finish()
+                }
+
+
             } else {
                 Toasty.warning(
                     this,

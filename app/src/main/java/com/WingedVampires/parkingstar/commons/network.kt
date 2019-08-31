@@ -1,6 +1,6 @@
 package com.WingedVampires.parkingstar.commons
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -10,8 +10,8 @@ import java.util.concurrent.TimeUnit
 
 object ServiceFactory {
 
-    internal const val TRUSTED_HOST = "192.168.43.17"
-    internal const val BASE_URL = "http://$TRUSTED_HOST:23333/"
+    internal const val TRUSTED_HOST = "172.28.243.48"
+    internal const val BASE_URL = "http://$TRUSTED_HOST:8080/"
 
     private val loggingInterceptor = HttpLoggingInterceptor()
         .apply { level = HttpLoggingInterceptor.Level.BODY }
@@ -35,11 +35,7 @@ object ServiceFactory {
     inline operator fun <reified T> invoke(): T = retrofit.create(T::class.java)
 }
 
-/**
- * A common wrapper class of respond data from open.twtstudio.com/api.
- *
- * @see com.twt.wepeiyang.commons.experimental.service.AuthService
- */
+
 data class CommonBody<out T>(
     val error_code: Int,
     val message: String,

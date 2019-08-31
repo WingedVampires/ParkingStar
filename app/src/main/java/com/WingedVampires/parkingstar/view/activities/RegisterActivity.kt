@@ -12,8 +12,14 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.WingedVampires.parkingstar.R
+import com.WingedVampires.parkingstar.commons.experimental.extensions.QuietCoroutineExceptionHandler
+import com.WingedVampires.parkingstar.commons.experimental.extensions.awaitAndHandle
 import com.WingedVampires.parkingstar.commons.experimental.extensions.enableLightStatusBarMode
+import com.WingedVampires.parkingstar.model.ParkingService
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -43,11 +49,35 @@ class RegisterActivity : AppCompatActivity() {
             hideSoftInputMethod()
 
             if (usernameInput.text.isNotBlank() && passwordInput.text.isNotBlank() && npasswordInput.text.isNotBlank()) {
-                if (passwordInput.text == npasswordInput.text) {
+                if (passwordInput.text.toString() == npasswordInput.text.toString()) {
                     if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
-                    mLoading.visibility = View.GONE
-                    Toasty.success(this, "注册成功", Toast.LENGTH_SHORT).show()
-                    onBackPressed()
+
+                    GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+                        val register = ParkingService.register(
+                            usernameInput.text.toString(),
+                            passwordInput.text.toString()
+                        ).awaitAndHandle {
+                            it.printStackTrace()
+                            Toasty.error(this@RegisterActivity, "注册失败", Toast.LENGTH_SHORT).show()
+                            mLoading.visibility = View.GONE
+                        }
+
+                        Toasty.success(
+                            this@RegisterActivity,
+                            register?.message.toString(),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        mLoading.visibility = View.GONE
+
+                        if (register == null || register.error_code != -1) {
+                            return@launch
+                        }
+
+                        Toasty.success(this@RegisterActivity, "注册成功", Toast.LENGTH_SHORT).show()
+                        onBackPressed()
+                    }
+
+
                 } else {
                     Toasty.warning(
                         this,

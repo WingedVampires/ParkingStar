@@ -19,8 +19,10 @@ import android.widget.TextView
 import android.widget.Toast
 import com.WingedVampires.parkingstar.R
 import com.WingedVampires.parkingstar.commons.experimental.extensions.QuietCoroutineExceptionHandler
+import com.WingedVampires.parkingstar.commons.experimental.extensions.awaitAndHandle
 import com.WingedVampires.parkingstar.commons.experimental.extensions.enableLightStatusBarMode
 import com.WingedVampires.parkingstar.commons.ui.rec.withItems
+import com.WingedVampires.parkingstar.model.ParkingService
 import com.WingedVampires.parkingstar.model.ParkingUtils
 import com.WingedVampires.parkingstar.view.items.parkingCarItem
 import com.amap.api.maps.model.LatLng
@@ -33,6 +35,7 @@ import com.youth.banner.Banner
 import com.youth.banner.BannerConfig
 import com.youth.banner.loader.ImageLoader
 import es.dmoral.toasty.Toasty
+import kotlinx.android.synthetic.main.activity_reservation.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -46,6 +49,8 @@ class ReservationActivity : AppCompatActivity() {
     lateinit var recyclerView: RecyclerView
     private val itemManager by lazy { recyclerView.withItems(mutableListOf()) }
     private var selectedCar = 0
+    private var address = "南开大学"
+    private var parkingId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +66,7 @@ class ReservationActivity : AppCompatActivity() {
         val monthlyButton = findViewById<TextView>(R.id.tv_reservation_monthly)
         val reservationList = findViewById<LinearLayout>(R.id.ll_reservation_reservation)
         val bundle = intent.extras
-        val index = bundle?.getInt(ParkingUtils.PAKING_INDEX)
+        parkingId = bundle?.getString(ParkingUtils.PAKING_INDEX)
         val pics = mutableListOf(R.drawable.ms_no_pic, R.drawable.ms_no_pic, R.drawable.ms_no_pic)
         mLoading = findViewById(R.id.cl_reservation_loading)
         recyclerView = findViewById(R.id.rv_reservation)
@@ -91,15 +96,18 @@ class ReservationActivity : AppCompatActivity() {
             start()
         }
         refreshParking()
-        guide.setOnClickListener { guide("南开大学") }
+        //导航
+        guide.setOnClickListener { guide(address) }
+        //刷新
         refresh.setOnClickListener {
             refreshParking()
         }
+        //预定按钮
         reserveButton.setOnClickListener {
             reservationList.visibility =
                 if (reservationList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
-
+        //包月按钮
         monthlyButton.setOnClickListener {
             val dialog = AlertDialog.Builder(this@ReservationActivity)
                 .setTitle("Do you want to park this parking lot for a month?")
@@ -113,7 +121,29 @@ class ReservationActivity : AppCompatActivity() {
 
                 }
                 .setNegativeButton("OK,thanks") { _, _ ->
+                    GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+                        if (parkingId == null) {
+                            Toasty.error(this@ReservationActivity, "无此停车场", Toast.LENGTH_SHORT)
+                                .show()
+                            return@launch
+                        }
+                        if (ParkingUtils.cars.isNotEmpty()) {
+                            val result = ParkingService.applyForMonth(
+                                parkingId!!,
+                                ParkingUtils.cars[selectedCar].car_id
+                            ).awaitAndHandle {
+                                it.printStackTrace()
+                                Toasty.error(this@ReservationActivity, "包月失败", Toast.LENGTH_SHORT)
+                            } ?: return@launch
 
+                            Toasty.success(
+                                this@ReservationActivity,
+                                result.message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                    }
                 }
                 .create()
 
@@ -121,6 +151,7 @@ class ReservationActivity : AppCompatActivity() {
         }
     }
 
+    //导航
     private fun guide(address: String) {
         val geocodeSearch = GeocodeSearch(this)
 
@@ -178,54 +209,103 @@ class ReservationActivity : AppCompatActivity() {
 
     private fun refreshParking() {
         GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+            if (parkingId == null) {
+                Toasty.error(this@ReservationActivity, "无此停车场", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+
             if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
+            GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+                val parkings = ParkingService.getParkingInfo(parkingId!!).awaitAndHandle {
+                    it.printStackTrace()
+                    Toasty.success(this@ReservationActivity, "加载失败", Toast.LENGTH_SHORT).show()
+                    mLoading.visibility = View.GONE
+                }
 
-            mLoading.visibility = View.GONE
-            Toasty.success(this@ReservationActivity, "加载成功", Toast.LENGTH_SHORT).show()
+                mLoading.visibility = View.GONE
+                val parking = parkings?.data?.get(0) ?: return@launch
 
-            itemManager.refreshAll {
-                for (i in 1..21) {
-                    parkingCarItem(i, mutableListOf(2, 4, 8, 10).contains(i)) { view, viewHolder ->
-                        val dialog = AlertDialog.Builder(this@ReservationActivity)
-                            .setMessage("Are you sure you want to reserve a parking space for ${i}?")
-                            .setCancelable(false)
-                            .setPositiveButton("No, I think about it again.") { _, _ ->
+                parking.apply {
+                    address = "$parking_name $parking_position"
+                    tv_reservation_location.text = parking_position
+                    tv_reservation_num.text = "共计${total_parkingSpace}个车位"
+                    tv_reservation_money_hour.text = "1小时${hour_fee}元"
+                    tv_reservation_money_month.text = "包月${month_fee}元"
+                }
+                val isPreservation = parking.preserved.split(",").map {
+                    it.toInt()
+                }
+                //添加车位
+                itemManager.refreshAll {
+                    for (i in 1..parking.total_parkingSpace) {
+                        parkingCarItem(i, isPreservation.contains(i)) { view, viewHolder ->
+                            val dialog = AlertDialog.Builder(this@ReservationActivity)
+                                .setMessage("Are you sure you want to reserve a parking space for ${i}?")
+                                .setCancelable(false)
+                                .setPositiveButton("No, I think about it again.") { _, _ ->
 
-                            }
-                            .setNegativeButton("OK,thanks") { _, _ ->
-                                viewHolder.apply {
-                                    add.visibility = View.GONE
-                                    not.visibility = View.VISIBLE
-                                    pic.backgroundResource = R.drawable.cd_car4
                                 }
+                                .setNegativeButton("OK,thanks") { _, _ ->
+                                    //具体的预约
+                                    GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+                                        val result =
+                                            ParkingService.reserve(parkingId!!, i).awaitAndHandle {
+                                                it.printStackTrace()
+                                                Toasty.error(
+                                                    this@ReservationActivity,
+                                                    "预约失败",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
 
-                            }
-                            .create()
-                        dialog.show()
+                                        val nResult = result ?: return@launch
+                                        Toasty.success(
+                                            this@ReservationActivity,
+                                            nResult.message,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        if (nResult.error_code == -1) {
+                                            viewHolder.apply {
+                                                add.visibility = View.GONE
+                                                not.visibility = View.VISIBLE
+                                                pic.backgroundResource = R.drawable.cd_car4
+                                            }
+                                        }
+                                    }
 
-                        try {
-                            val mAlert: Field = AlertDialog::class.java.getDeclaredField("mAlert")
-                            mAlert.isAccessible = true
-                            val mAlertController = mAlert.get(dialog)
-                            val mMessage: Field =
-                                mAlertController.javaClass.getDeclaredField("mMessageView")
-                            mMessage.isAccessible = true
-                            val mMessageView = mMessage.get(mAlertController) as TextView
-                            mMessageView.setTextColor(
-                                ContextCompat.getColor(
-                                    this@ReservationActivity,
-                                    R.color.ThemeTextColor
+
+                                }
+                                .create()
+                            dialog.show()
+
+                            try {
+                                val mAlert: Field =
+                                    AlertDialog::class.java.getDeclaredField("mAlert")
+                                mAlert.isAccessible = true
+                                val mAlertController = mAlert.get(dialog)
+                                val mMessage: Field =
+                                    mAlertController.javaClass.getDeclaredField("mMessageView")
+                                mMessage.isAccessible = true
+                                val mMessageView = mMessage.get(mAlertController) as TextView
+                                mMessageView.setTextColor(
+                                    ContextCompat.getColor(
+                                        this@ReservationActivity,
+                                        R.color.ThemeTextColor
+                                    )
                                 )
-                            )
-                            mMessageView.textSize = 25f
-                        } catch (e: IllegalAccessException) {
-                            e.printStackTrace()
-                        } catch (e: NoSuchFieldException) {
-                            e.printStackTrace()
+                                mMessageView.textSize = 25f
+                            } catch (e: IllegalAccessException) {
+                                e.printStackTrace()
+                            } catch (e: NoSuchFieldException) {
+                                e.printStackTrace()
+                            }
                         }
                     }
                 }
+
+                Toasty.success(this@ReservationActivity, "加载成功", Toast.LENGTH_SHORT).show()
             }
+
         }
     }
 
