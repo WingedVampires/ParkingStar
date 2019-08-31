@@ -13,9 +13,13 @@ import android.widget.ImageView
 import android.widget.Toast
 import com.WingedVampires.parkingstar.R
 import com.WingedVampires.parkingstar.commons.experimental.extensions.QuietCoroutineExceptionHandler
+import com.WingedVampires.parkingstar.commons.experimental.extensions.awaitAndHandle
 import com.WingedVampires.parkingstar.commons.experimental.extensions.enableLightStatusBarMode
 import com.WingedVampires.parkingstar.commons.ui.rec.Item
 import com.WingedVampires.parkingstar.commons.ui.rec.withItems
+import com.WingedVampires.parkingstar.model.LiveParkingManager
+import com.WingedVampires.parkingstar.model.ParkingService
+import com.WingedVampires.parkingstar.model.ParkingUtils
 import com.WingedVampires.parkingstar.view.items.myTitleItem
 import com.WingedVampires.parkingstar.view.items.myreservationItem
 import es.dmoral.toasty.Toasty
@@ -54,26 +58,135 @@ class MyReservationActivity : AppCompatActivity() {
     }
 
     private fun refreshMyReservation() {
+        LiveParkingManager.refreshParkingInfo()
+
         GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
             if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
-            val list = mutableListOf<Item>().apply {
-                myreservationItem("jeij", "fjiej", "jfi", "jfi")
-                myreservationItem("jeij", "fjiej", "jfi", "jfi")
-                myreservationItem("jeij", "fjiej", "jfi", "jfi")
+
+            val totalList = ParkingService.listAllReserve().awaitAndHandle {
+                it.printStackTrace()
+                Toasty.error(this@MyReservationActivity, "加载失败", Toast.LENGTH_SHORT).show()
+            }?.data ?: return@launch
+
+            val listOfRunning = mutableListOf<Item>().apply {
+                totalList.filter { it.reserved_status == "使用中" }.forEach { r ->
+                    myreservationItem(
+                        r.parking_id,
+                        ParkingUtils.parkings[r.parking_id],
+                        r.reserved.toString(),
+                        r.reserved_time,
+                        true
+                    ) {
+                        if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
+                        GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+                            val result = ParkingService.cancelReserve(
+                                r.parking_id,
+                                r.reserved
+                            ).awaitAndHandle {
+                                it.printStackTrace()
+                                Toasty.error(this@MyReservationActivity, "删除失败", Toast.LENGTH_SHORT)
+                                    .show()
+                            } ?: return@launch
+                            Toasty.success(
+                                this@MyReservationActivity,
+                                result.message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        mLoading.visibility = View.GONE
+
+                    }
+                }
             }
+            val listOfChecking = mutableListOf<Item>().apply {
+                totalList.filter { it.reserved_status == "待审核" }.forEach { r ->
+                    myreservationItem(
+                        r.parking_id,
+                        ParkingUtils.parkings[r.parking_id],
+                        r.reserved.toString(),
+                        r.reserved_time,
+                        false
+                    )
+                }
+            }
+            val listOfRefuse = mutableListOf<Item>().apply {
+                totalList.filter { it.reserved_status == "被拒绝" }.forEach { r ->
+                    myreservationItem(
+                        r.parking_id,
+                        ParkingUtils.parkings[r.parking_id],
+                        r.reserved.toString(),
+                        r.reserved_time,
+                        false
+                    )
+                }
+            }
+            val listOfCancel = mutableListOf<Item>().apply {
+                totalList.filter { it.reserved_status == "已取消" }.forEach { r ->
+                    myreservationItem(
+                        r.parking_id,
+                        ParkingUtils.parkings[r.parking_id],
+                        r.reserved.toString(),
+                        r.reserved_time,
+                        false
+                    )
+                }
+            }
+
             mLoading.visibility = View.GONE
             Toasty.success(this@MyReservationActivity, "加载完成", Toast.LENGTH_SHORT).show()
             itemManager.refreshAll {
-                myTitleItem("进行中") { viewHolder, item ->
+                myTitleItem("使用中") { viewHolder, item ->
                     if (item.isOpen) {
                         viewHolder.more.imageResource = R.drawable.cd_show
-                        itemManager.removeAll(list)
+                        itemManager.removeAll(listOfRunning)
                         item.isOpen = false
 
                     } else {
                         viewHolder.more.imageResource = R.drawable.cd_close
                         itemManager.autoRefresh {
-                            addAll(itemManager.indexOf(item) + 1, list)
+                            addAll(itemManager.indexOf(item) + 1, listOfRunning)
+                        }
+                        item.isOpen = true
+                    }
+                }
+                myTitleItem("待审核") { viewHolder, item ->
+                    if (item.isOpen) {
+                        viewHolder.more.imageResource = R.drawable.cd_show
+                        itemManager.removeAll(listOfChecking)
+                        item.isOpen = false
+
+                    } else {
+                        viewHolder.more.imageResource = R.drawable.cd_close
+                        itemManager.autoRefresh {
+                            addAll(itemManager.indexOf(item) + 1, listOfChecking)
+                        }
+                        item.isOpen = true
+                    }
+                }
+                myTitleItem("被拒绝") { viewHolder, item ->
+                    if (item.isOpen) {
+                        viewHolder.more.imageResource = R.drawable.cd_show
+                        itemManager.removeAll(listOfRefuse)
+                        item.isOpen = false
+
+                    } else {
+                        viewHolder.more.imageResource = R.drawable.cd_close
+                        itemManager.autoRefresh {
+                            addAll(itemManager.indexOf(item) + 1, listOfRefuse)
+                        }
+                        item.isOpen = true
+                    }
+                }
+                myTitleItem("已取消") { viewHolder, item ->
+                    if (item.isOpen) {
+                        viewHolder.more.imageResource = R.drawable.cd_show
+                        itemManager.removeAll(listOfCancel)
+                        item.isOpen = false
+
+                    } else {
+                        viewHolder.more.imageResource = R.drawable.cd_close
+                        itemManager.autoRefresh {
+                            addAll(itemManager.indexOf(item) + 1, listOfCancel)
                         }
                         item.isOpen = true
                     }
@@ -81,7 +194,6 @@ class MyReservationActivity : AppCompatActivity() {
 
             }
         }
-
     }
 }
 

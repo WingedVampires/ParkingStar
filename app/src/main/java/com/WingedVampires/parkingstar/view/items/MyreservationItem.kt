@@ -15,7 +15,7 @@ import org.jetbrains.anko.startActivity
 
 class MyreservationItem(
     val parkingId: String,
-    val parking: String,
+    val parking: String?,
     val car: String,
     val time: String,
     val showDelete: Boolean,
@@ -37,7 +37,7 @@ class MyreservationItem(
             holder as ViewHolder
 
             holder.apply {
-                parking.text = item.parking
+                parking.text = item.parking ?: "未知"
                 car.text = item.car
                 time.text = item.time
 
@@ -64,7 +64,7 @@ class MyreservationItem(
 
 fun MutableList<Item>.myreservationItem(
     parkingId: String,
-    parking: String,
+    parking: String?,
     car: String,
     time: String,
     showDelete: Boolean = false,

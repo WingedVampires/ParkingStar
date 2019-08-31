@@ -63,6 +63,10 @@ object LiveParkingManager {
                 ?: throw IllegalStateException("费用数据为空 联系开发者解决")
 
             ParkingUtils.cars = arrayListOf<Car>().apply { addAll(cars) }
+            parkings.forEach {
+                ParkingUtils.parkings[it.parking_id] = it.parking_name
+            }
+
             val parkingInfo = ParkingInfo(parkings, cars, fees, cache = false)
             parkingInfoCache.set(parkingInfo)
             parkingInfoLiveData.postValue(RefreshState.Success(parkingInfo))

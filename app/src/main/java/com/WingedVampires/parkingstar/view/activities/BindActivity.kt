@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.view.View
 import android.view.Window
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import com.WingedVampires.parkingstar.R
@@ -41,6 +42,7 @@ class BindActivity : AppCompatActivity() {
         val mToolBar = findViewById<Toolbar>(R.id.tb_bind)
         val refresh = findViewById<ImageView>(R.id.iv_bind_refresh)
         val add = findViewById<ImageView>(R.id.iv_bind_add)
+        val input = findViewById<EditText>(R.id.et_bind_input)
         mLoading = findViewById(R.id.cl_bind_loading)
         recyclerView = findViewById(R.id.rv_bind)
 
@@ -95,7 +97,16 @@ class BindActivity : AppCompatActivity() {
         }
 
         add.setOnClickListener {
-
+            if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
+            GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+                val result = ParkingService.addCar(input.text.toString()).awaitAndHandle {
+                    it.printStackTrace()
+                    Toasty.error(this@BindActivity, "删除失败", Toast.LENGTH_SHORT).show()
+                } ?: return@launch
+                Toasty.success(this@BindActivity, result.message, Toast.LENGTH_SHORT).show()
+            }
+            mLoading.visibility = View.GONE
+            refreshBound()
         }
 
         refresh.setOnClickListener { refreshBound() }
