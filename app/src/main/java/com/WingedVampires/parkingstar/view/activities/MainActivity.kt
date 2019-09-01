@@ -104,7 +104,6 @@ class MainActivity : AppCompatActivity() {
             itemIconTintList = null
 
             setNavigationItemSelectedListener { item ->
-                Toast.makeText(this@MainActivity, item.title, Toast.LENGTH_LONG).show()
                 when (item.itemId) {
                     R.id.item_bind -> this@MainActivity.startActivity<BindActivity>()
                     R.id.item_reservation -> this@MainActivity.startActivity<MyReservationActivity>()

@@ -20,11 +20,6 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/item_nav_menu_set"
-                    android:icon="@drawable/cd_set"
-                    android:title="SETTING" />
-
-                <item
                     android:id="@+id/item_quit"
                     android:icon="@drawable/cd_relate"
                     android:title="QUIT" />
