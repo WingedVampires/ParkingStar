@@ -25,9 +25,9 @@
                     android:title="SETTING" />
 
                 <item
-                    android:id="@+id/item_nav_menu_relate"
+                    android:id="@+id/item_quit"
                     android:icon="@drawable/cd_relate"
-                    android:title="ABOUT" />
+                    android:title="QUIT" />
             </group>
 
             <group android:checkableBehavior="single">

@@ -43,6 +43,7 @@ class MyMonthlyActivity : AppCompatActivity() {
 
         val mToolBar = findViewById<Toolbar>(R.id.tb_mymonthly)
         val refresh = findViewById<ImageView>(R.id.iv_mymonthly_refresh)
+        mLoading = findViewById(R.id.cl_mymonthly_loading)
         recyclerView = findViewById(R.id.rv_mymonthly)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -62,7 +63,7 @@ class MyMonthlyActivity : AppCompatActivity() {
 
         GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
             if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
-
+            itemManager.refreshAll { }
             val totalList = ParkingService.listUserAllMonth().awaitAndHandle {
                 it.printStackTrace()
                 Toasty.error(this@MyMonthlyActivity, "加载失败", Toast.LENGTH_SHORT).show()

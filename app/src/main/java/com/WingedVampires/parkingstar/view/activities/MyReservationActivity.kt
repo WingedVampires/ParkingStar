@@ -43,9 +43,9 @@ class MyReservationActivity : AppCompatActivity() {
 
         val mToolBar = findViewById<Toolbar>(R.id.tb_myreservation)
         val refresh = findViewById<ImageView>(R.id.iv_myreservation_refresh)
-        mLoading = findViewById(R.id.cl_reservation_loading)
+        mLoading = findViewById(R.id.cl_myreservation_loading)
         recyclerView = findViewById(R.id.rv_myreservation)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = LinearLayoutManager(this) as RecyclerView.LayoutManager?
 
         mToolBar.apply {
             title = "MY RESERVATION"
@@ -53,6 +53,7 @@ class MyReservationActivity : AppCompatActivity() {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             setNavigationOnClickListener { onBackPressed() }
         }
+
         refreshMyReservation()
         refresh.setOnClickListener { refreshMyReservation() }
     }
@@ -62,7 +63,7 @@ class MyReservationActivity : AppCompatActivity() {
 
         GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
             if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
-
+            itemManager.refreshAll { }
             val totalList = ParkingService.listAllReserve().awaitAndHandle {
                 it.printStackTrace()
                 Toasty.error(this@MyReservationActivity, "加载失败", Toast.LENGTH_SHORT).show()
@@ -135,6 +136,8 @@ class MyReservationActivity : AppCompatActivity() {
             mLoading.visibility = View.GONE
             Toasty.success(this@MyReservationActivity, "加载完成", Toast.LENGTH_SHORT).show()
             itemManager.refreshAll {
+
+
                 myTitleItem("使用中") { viewHolder, item ->
                     if (item.isOpen) {
                         viewHolder.more.imageResource = R.drawable.cd_show

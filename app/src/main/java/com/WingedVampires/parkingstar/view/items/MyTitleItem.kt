@@ -12,6 +12,15 @@ import org.jetbrains.anko.layoutInflater
 
 class MyTitleItem(val title: String, val block: (ViewHolder, MyTitleItem) -> Unit) : Item {
     var isOpen = false
+
+    override fun areContentsTheSame(newItem: Item): Boolean {
+        return title == (newItem as? MyTitleItem)?.title
+    }
+
+    override fun areItemsTheSame(newItem: Item): Boolean {
+        return title == (newItem as? MyTitleItem)?.title
+    }
+
     override val controller: ItemController
         get() = Controller
 
@@ -29,6 +38,7 @@ class MyTitleItem(val title: String, val block: (ViewHolder, MyTitleItem) -> Uni
 
             holder.apply {
                 title.text = item.title
+                more.setImageResource(R.drawable.cd_show)
                 more.setOnClickListener { item.block(holder, item) }
             }
         }
@@ -44,5 +54,4 @@ class MyTitleItem(val title: String, val block: (ViewHolder, MyTitleItem) -> Uni
 fun MutableList<Item>.myTitleItem(
     title: String,
     block: (MyTitleItem.ViewHolder, MyTitleItem) -> Unit = { _, _ -> }
-) =
-    add(MyTitleItem(title, block))
+) = add(MyTitleItem(title, block))

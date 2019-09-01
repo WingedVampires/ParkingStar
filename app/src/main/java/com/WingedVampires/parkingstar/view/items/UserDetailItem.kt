@@ -6,7 +6,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.Spinner
+import android.widget.TextView
 import com.WingedVampires.parkingstar.R
 import com.WingedVampires.parkingstar.commons.ui.rec.Item
 import com.WingedVampires.parkingstar.commons.ui.rec.ItemController
@@ -14,18 +17,17 @@ import org.jetbrains.anko.imageResource
 import org.jetbrains.anko.layoutInflater
 
 enum class UserDetailType {
-    EDIT, SPINNER, TEXT
+    EDIT, TEXT
 }
 
-class UserDetailItem<T>(
+class UserDetailItem(
     val context: Context,
     val picId: Int,
     val title: String,
     val userDetailType: UserDetailType,
-    val value: T,
-    val spinnerList: List<String> = mutableListOf()
+    val value: String
 ) : Item {
-    var mValue: T? = null
+    var mValue: String? = null
     override val controller: ItemController
         get() = Controller
 
@@ -39,7 +41,7 @@ class UserDetailItem<T>(
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, item: Item) {
             holder as ViewHolder
-            item as UserDetailItem<*>
+            item as UserDetailItem
 
             val value = item.value
 
@@ -49,12 +51,15 @@ class UserDetailItem<T>(
                 when (item.userDetailType) {
                     UserDetailType.TEXT -> {
                         textContent.visibility = View.VISIBLE
-                        if (value is String) textContent.text = value
+                        editContent.visibility = View.GONE
+                        textContent.text = item.value
                     }
                     UserDetailType.EDIT -> {
+                        textContent.visibility = View.GONE
                         editContent.apply {
                             visibility = View.VISIBLE
-                            if (value is String) setText(value)
+                            editContent.setText(item.value)
+                            item.mValue = item.value
                             editContent.addTextChangedListener(object : TextWatcher {
                                 override fun beforeTextChanged(
                                     s: CharSequence?,
@@ -73,44 +78,15 @@ class UserDetailItem<T>(
                                 ) {
 
                                     if (editContent.text.isNotBlank()) {
-                                        if (item.mValue is String) {
-                                            item as UserDetailItem<String>
-                                            item.mValue = editContent.text.toString()
-                                        }
-
+                                        item.mValue = editContent.text.toString()
+                                    }
+                                    if (editContent.text.isBlank()) {
+                                        item.mValue = null
                                     }
                                 }
                             })
 
                         }
-                    }
-                    UserDetailType.SPINNER -> {
-                        spinnerContent.apply {
-                            visibility = View.VISIBLE
-                            adapter = ArrayAdapter(
-                                item.context,
-                                R.layout.custom_spiner_text_item,
-                                item.spinnerList
-                            )
-                            onItemSelectedListener =
-                                object : AdapterView.OnItemSelectedListener {
-                                    override fun onItemSelected(
-                                        parent: AdapterView<*>?,
-                                        view: View?,
-                                        position: Int,
-                                        id: Long
-                                    ) {
-                                        if (item.value is Int) {
-                                            item as UserDetailItem<Int>
-                                            item.mValue = position
-                                        }
-
-                                    }
-
-                                    override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-                                }
-                        }
-
                     }
                 }
             }

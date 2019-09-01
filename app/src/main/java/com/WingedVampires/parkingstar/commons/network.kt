@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 object ServiceFactory {
 
-    internal const val TRUSTED_HOST = "172.28.243.48"
+    internal const val TRUSTED_HOST = "172.28.247.12"
     internal const val BASE_URL = "http://$TRUSTED_HOST:8080/"
 
     private val loggingInterceptor = HttpLoggingInterceptor()

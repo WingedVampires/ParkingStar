@@ -24,6 +24,14 @@ class MyreservationItem(
     override val controller: ItemController
         get() = Controller
 
+    override fun areContentsTheSame(newItem: Item): Boolean {
+        return parkingId == (newItem as? MyreservationItem)?.parkingId && car == (newItem as? MyreservationItem)?.car && time == (newItem as? MyreservationItem)?.time && showDelete == (newItem as? MyreservationItem)?.showDelete
+    }
+
+    override fun areItemsTheSame(newItem: Item): Boolean {
+        return parkingId == (newItem as? MyreservationItem)?.parkingId && car == (newItem as? MyreservationItem)?.car && time == (newItem as? MyreservationItem)?.time && showDelete == (newItem as? MyreservationItem)?.showDelete
+    }
+
     companion object Controller : ItemController {
         override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
             val view =

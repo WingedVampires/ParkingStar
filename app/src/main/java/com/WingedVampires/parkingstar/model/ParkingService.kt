@@ -16,10 +16,23 @@ interface ParkingService {
     fun login(@Query("user_name") userName: String, @Query("password") password: String): Deferred<CommonBody<List<UserInfo>>>
 
     @GET("users/logout")
-    fun logout(@Query("user_name") userName: String, @Query("password") password: String): Deferred<CommonBody<String>>
+    fun logout(
+        @Query("user_name") userName: String = CommonPreferences.userName,
+        @Query("password") password: String = CommonPreferences.password
+    ): Deferred<CommonBody<String>>
 
-    @GET("user/listAllInfoOfUser")
+
+    @GET("users/listAllInfoOfUser")
     fun listAllInfoOfUser(@Query("user_name") userName: String = CommonPreferences.userName): Deferred<CommonBody<List<UserInfo>>>
+
+    @GET("users/addInfo")
+    fun addInfo(
+        @Query("gender") gender: String?,
+        @Query("phone") phone: String?,
+        @Query("chinaID") chinaID: String?,
+        @Query("real_name") real_name: String?,
+        @Query("user_name") user_name: String = CommonPreferences.userName
+    ): Deferred<CommonBody<String>>
 
     @GET("parking/listAllInfoOfParking")
     fun getParkingInfo(@Query("parking_id") parkingId: String): Deferred<CommonBody<List<Parking>>>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="200dp"
     android:background="@color/ThemeColor"
@@ -22,7 +23,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:text="我知道你 的忧郁是为了什么"
-        android:textColor="@android:color/white" />
+        android:fontFamily="monospace"
+        android:textColor="#646D83"
+        android:textSize="18sp"
+        tools:text="123456789" />
     ​
 </LinearLayout>

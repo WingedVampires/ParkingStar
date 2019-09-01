@@ -1,7 +1,6 @@
 package com.WingedVampires.parkingstar.model
 
 import android.content.Context
-import com.WingedVampires.parkingstar.commons.experimental.preference.hawk
 import com.amap.api.maps.model.LatLng
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -13,8 +12,23 @@ object ParkingUtils {
 
     const val PAKING_INDEX = "parkingIndex"
 
-    var cars by hawk("USER_CARS", arrayListOf<Car>())
+    val cars = arrayListOf<Car>()
     var parkings = HashMap<String, String>()
+
+    /***rank
+     * 普通用户1   已认证用户(绑定车牌)2    停车场租赁承包商3
+     *停车场业主管理员4            运营管理员5  超级管理员6
+     *
+     */
+    fun getRank(rank: Int): String = when (rank) {
+        1 -> "普通用户"
+        2 -> "已认证用户(绑定车牌)"
+        3 -> "停车场租赁承包商"
+        4 -> "停车场业主管理员"
+        5 -> "运营管理员"
+        6 -> "超级管理员"
+        else -> "神秘来客"
+    }
 
     fun GCJ2BD(bd: LatLng): LatLng {
         val x = bd.longitude

@@ -1,5 +1,6 @@
 package com.WingedVampires.parkingstar.view.activities
 
+import android.arch.lifecycle.Observer
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -18,10 +19,12 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.WingedVampires.parkingstar.R
+import com.WingedVampires.parkingstar.commons.experimental.cache.RefreshState
 import com.WingedVampires.parkingstar.commons.experimental.extensions.QuietCoroutineExceptionHandler
 import com.WingedVampires.parkingstar.commons.experimental.extensions.awaitAndHandle
 import com.WingedVampires.parkingstar.commons.experimental.extensions.enableLightStatusBarMode
 import com.WingedVampires.parkingstar.commons.ui.rec.withItems
+import com.WingedVampires.parkingstar.model.LiveParkingManager
 import com.WingedVampires.parkingstar.model.ParkingService
 import com.WingedVampires.parkingstar.model.ParkingUtils
 import com.WingedVampires.parkingstar.view.items.parkingCarItem
@@ -77,7 +80,7 @@ class ReservationActivity : AppCompatActivity() {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             setNavigationOnClickListener { onBackPressed() }
         }
-
+        mToolBar.title = ParkingUtils.parkings[parkingId]
         mBanner.apply {
             //设置图片加载器
             setImageLoader(object : ImageLoader() {
@@ -108,46 +111,68 @@ class ReservationActivity : AppCompatActivity() {
                 if (reservationList.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
         //包月按钮
+
         monthlyButton.setOnClickListener {
-            val dialog = AlertDialog.Builder(this@ReservationActivity)
-                .setTitle("Do you want to park this parking lot for a month?")
-                .setCancelable(false)
-                .setSingleChoiceItems(
-                    ParkingUtils.cars.toArray(arrayOf<String>()), 0
-                ) { dialog, which ->
-                    selectedCar = which
-                }
-                .setPositiveButton("No, I think about it again.") { _, _ ->
+            LiveParkingManager.getParkingLiveData().observe(this, Observer { refreshState ->
+                when (refreshState) {
+                    is RefreshState.Success -> refreshState.message.apply {
+                        val cars = this.cars
+                        val carArray = arrayListOf<String>().also { list ->
+                            cars.forEach {
+                                list.add(it.car_id)
+                            }
+                        }.toArray(arrayOf<String>())
+                        val dialog = AlertDialog.Builder(this@ReservationActivity)
+                            .setTitle("Do you want to park this parking lot for a month?")
+                            .setCancelable(false)
+                            .setSingleChoiceItems(
+                                carArray, 0
+                            ) { dialog, which ->
+                                selectedCar = which
+                            }
+                            .setPositiveButton("No, I think about it again.") { _, _ ->
 
-                }
-                .setNegativeButton("OK,thanks") { _, _ ->
-                    GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
-                        if (parkingId == null) {
-                            Toasty.error(this@ReservationActivity, "无此停车场", Toast.LENGTH_SHORT)
-                                .show()
-                            return@launch
-                        }
-                        if (ParkingUtils.cars.isNotEmpty()) {
-                            val result = ParkingService.applyForMonth(
-                                parkingId!!,
-                                ParkingUtils.cars[selectedCar].car_id
-                            ).awaitAndHandle {
-                                it.printStackTrace()
-                                Toasty.error(this@ReservationActivity, "包月失败", Toast.LENGTH_SHORT)
-                            } ?: return@launch
+                            }
+                            .setNegativeButton("OK,thanks") { _, _ ->
+                                GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+                                    if (parkingId == null) {
+                                        Toasty.error(
+                                            this@ReservationActivity,
+                                            "无此停车场",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                            .show()
+                                        return@launch
+                                    }
+                                    if (ParkingUtils.cars.isNotEmpty()) {
+                                        val result = ParkingService.applyForMonth(
+                                            parkingId!!,
+                                            carArray[selectedCar]
+                                        ).awaitAndHandle {
+                                            it.printStackTrace()
+                                            Toasty.error(
+                                                this@ReservationActivity,
+                                                "包月失败",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                        } ?: return@launch
 
-                            Toasty.success(
-                                this@ReservationActivity,
-                                result.message,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                                        Toasty.success(
+                                            this@ReservationActivity,
+                                            result.message,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                }
+                            }.create()
+
+                        dialog.show()
 
                     }
                 }
-                .create()
+            })
 
-            dialog.show()
         }
     }
 
