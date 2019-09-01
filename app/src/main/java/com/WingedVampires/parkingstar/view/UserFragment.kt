@@ -51,8 +51,10 @@ class UserFragment : Fragment() {
                 commit()
                 loadAndRefresh()
                 isEdit = false
+                refresh.visibility = View.VISIBLE
             } else {
                 editPerson()
+                refresh.visibility = View.GONE
                 isEdit = true
             }
         }
