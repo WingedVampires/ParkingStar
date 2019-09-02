@@ -18,8 +18,11 @@ import com.WingedVampires.parkingstar.commons.experimental.extensions.enableLigh
 import com.WingedVampires.parkingstar.commons.ui.rec.Item
 import com.WingedVampires.parkingstar.commons.ui.rec.withItems
 import com.WingedVampires.parkingstar.model.LiveParkingManager
+import com.WingedVampires.parkingstar.model.Monthly
 import com.WingedVampires.parkingstar.model.ParkingService
 import com.WingedVampires.parkingstar.model.ParkingUtils
+import com.WingedVampires.parkingstar.view.items.MyTitleItem
+import com.WingedVampires.parkingstar.view.items.MyreservationItem
 import com.WingedVampires.parkingstar.view.items.myTitleItem
 import com.WingedVampires.parkingstar.view.items.myreservationItem
 import es.dmoral.toasty.Toasty
@@ -77,25 +80,8 @@ class MyMonthlyActivity : AppCompatActivity() {
                         r.car_id,
                         "${r.start_time} - ${r.end_time}",
                         true
-                    ) {
-                        if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
-                        GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
-                            val result = ParkingService.cancelForMonth(
-                                r.parking_id,
-                                r.car_id
-                            ).awaitAndHandle {
-                                it.printStackTrace()
-                                Toasty.error(this@MyMonthlyActivity, "删除失败", Toast.LENGTH_SHORT)
-                                    .show()
-                            } ?: return@launch
-                            Toasty.success(
-                                this@MyMonthlyActivity,
-                                result.message,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        mLoading.visibility = View.GONE
-
+                    ) { item ->
+                        deleteItem(r, item)
                     }
                 }
             }
@@ -106,8 +92,10 @@ class MyMonthlyActivity : AppCompatActivity() {
                         ParkingUtils.parkings[r.parking_id],
                         r.car_id,
                         "${r.start_time} - ${r.end_time}",
-                        false
-                    )
+                        true
+                    ) { item ->
+                        deleteItem(r, item)
+                    }
                 }
             }
             val listOfRefuse = mutableListOf<Item>().apply {
@@ -137,63 +125,64 @@ class MyMonthlyActivity : AppCompatActivity() {
             Toasty.success(this@MyMonthlyActivity, "加载完成", Toast.LENGTH_SHORT).show()
             itemManager.refreshAll {
                 myTitleItem("使用中") { viewHolder, item ->
-                    if (item.isOpen) {
-                        viewHolder.more.imageResource = R.drawable.cd_show
-                        itemManager.removeAll(listOfRunning)
-                        item.isOpen = false
-
-                    } else {
-                        viewHolder.more.imageResource = R.drawable.cd_close
-                        itemManager.autoRefresh {
-                            addAll(itemManager.indexOf(item) + 1, listOfRunning)
-                        }
-                        item.isOpen = true
-                    }
+                    showAndCloseMore(viewHolder, item, listOfRunning)
                 }
                 myTitleItem("待审核") { viewHolder, item ->
-                    if (item.isOpen) {
-                        viewHolder.more.imageResource = R.drawable.cd_show
-                        itemManager.removeAll(listOfChecking)
-                        item.isOpen = false
-
-                    } else {
-                        viewHolder.more.imageResource = R.drawable.cd_close
-                        itemManager.autoRefresh {
-                            addAll(itemManager.indexOf(item) + 1, listOfChecking)
-                        }
-                        item.isOpen = true
-                    }
+                    showAndCloseMore(viewHolder, item, listOfChecking)
                 }
                 myTitleItem("被拒绝") { viewHolder, item ->
-                    if (item.isOpen) {
-                        viewHolder.more.imageResource = R.drawable.cd_show
-                        itemManager.removeAll(listOfRefuse)
-                        item.isOpen = false
-
-                    } else {
-                        viewHolder.more.imageResource = R.drawable.cd_close
-                        itemManager.autoRefresh {
-                            addAll(itemManager.indexOf(item) + 1, listOfRefuse)
-                        }
-                        item.isOpen = true
-                    }
+                    showAndCloseMore(viewHolder, item, listOfRefuse)
                 }
                 myTitleItem("已取消") { viewHolder, item ->
-                    if (item.isOpen) {
-                        viewHolder.more.imageResource = R.drawable.cd_show
-                        itemManager.removeAll(listOfCancel)
-                        item.isOpen = false
-
-                    } else {
-                        viewHolder.more.imageResource = R.drawable.cd_close
-                        itemManager.autoRefresh {
-                            addAll(itemManager.indexOf(item) + 1, listOfCancel)
-                        }
-                        item.isOpen = true
-                    }
+                    showAndCloseMore(viewHolder, item, listOfCancel)
                 }
 
             }
+        }
+    }
+
+    private fun deleteItem(r: Monthly, item: MyreservationItem) {
+        if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
+        GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
+            val result = ParkingService.cancelForMonth(
+                r.parking_id,
+                r.car_id
+            ).awaitAndHandle {
+                it.printStackTrace()
+                Toasty.error(this@MyMonthlyActivity, "删除失败", Toast.LENGTH_SHORT)
+                    .show()
+            } ?: return@launch
+            Toasty.success(
+                this@MyMonthlyActivity,
+                result.message,
+                Toast.LENGTH_SHORT
+            ).show()
+
+            if (result.error_code == -1) {
+                itemManager.remove(item)
+            }
+        }
+        mLoading.visibility = View.GONE
+
+
+    }
+
+    private fun showAndCloseMore(
+        viewHolder: MyTitleItem.ViewHolder,
+        item: MyTitleItem,
+        list: MutableList<Item>
+    ) {
+        if (item.isOpen) {
+            viewHolder.more.imageResource = R.drawable.cd_show
+            itemManager.removeAll(list)
+            item.isOpen = false
+
+        } else {
+            viewHolder.more.imageResource = R.drawable.cd_close
+            itemManager.autoRefresh {
+                addAll(itemManager.indexOf(item) + 1, list)
+            }
+            item.isOpen = true
         }
     }
 }
