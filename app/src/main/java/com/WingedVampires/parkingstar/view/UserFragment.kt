@@ -182,6 +182,8 @@ class UserFragment : Fragment() {
             Toasty.success(this@UserFragment.context!!, result.message, Toast.LENGTH_SHORT).show()
 
         }
+
+        loadAndRefresh()
     }
 
 }

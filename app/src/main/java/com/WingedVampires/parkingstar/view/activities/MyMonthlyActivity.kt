@@ -81,7 +81,7 @@ class MyMonthlyActivity : AppCompatActivity() {
                         "${r.start_time} - ${r.end_time}",
                         true
                     ) { item ->
-                        deleteItem(r, item)
+                        deleteItem(r, item, totalList)
                     }
                 }
             }
@@ -94,7 +94,7 @@ class MyMonthlyActivity : AppCompatActivity() {
                         "${r.start_time} - ${r.end_time}",
                         true
                     ) { item ->
-                        deleteItem(r, item)
+                        deleteItem(r, item, totalList)
                     }
                 }
             }
@@ -141,7 +141,7 @@ class MyMonthlyActivity : AppCompatActivity() {
         }
     }
 
-    private fun deleteItem(r: Monthly, item: MyreservationItem) {
+    private fun deleteItem(r: Monthly, item: MyreservationItem, list: List<Monthly>) {
         if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
         GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
             val result = ParkingService.cancelForMonth(
@@ -160,6 +160,7 @@ class MyMonthlyActivity : AppCompatActivity() {
 
             if (result.error_code == -1) {
                 itemManager.remove(item)
+                list.toMutableList().remove(r)
             }
         }
         mLoading.visibility = View.GONE

@@ -104,6 +104,10 @@ class BindActivity : AppCompatActivity() {
                     Toasty.error(this@BindActivity, "删除失败", Toast.LENGTH_SHORT).show()
                 } ?: return@launch
                 Toasty.success(this@BindActivity, result.message, Toast.LENGTH_SHORT).show()
+
+                if (result.error_code == -1) {
+                    input.text.clear()
+                }
             }
             mLoading.visibility = View.GONE
             refreshBound()

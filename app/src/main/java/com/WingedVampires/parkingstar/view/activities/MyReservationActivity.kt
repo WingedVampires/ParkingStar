@@ -81,7 +81,7 @@ class MyReservationActivity : AppCompatActivity() {
                         r.reserved_time,
                         true
                     ) { item ->
-                        deleteItem(r, item)
+                        deleteItem(r, item, totalList)
                     }
                 }
             }
@@ -94,7 +94,7 @@ class MyReservationActivity : AppCompatActivity() {
                         r.reserved_time,
                         true
                     ) { item ->
-                        deleteItem(r, item)
+                        deleteItem(r, item, totalList)
                     }
                 }
             }
@@ -143,7 +143,7 @@ class MyReservationActivity : AppCompatActivity() {
         }
     }
 
-    private fun deleteItem(r: Reservation, item: MyreservationItem) {
+    private fun deleteItem(r: Reservation, item: MyreservationItem, list: List<Reservation>) {
         if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
         GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
             val result = ParkingService.cancelReserve(
@@ -162,6 +162,7 @@ class MyReservationActivity : AppCompatActivity() {
 
             if (result.error_code == -1) {
                 itemManager.remove(item)
+                list.toMutableList().remove(r)
             }
         }
         mLoading.visibility = View.GONE
