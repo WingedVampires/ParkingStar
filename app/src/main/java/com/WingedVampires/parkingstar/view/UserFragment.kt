@@ -12,11 +12,13 @@ import android.widget.Toast
 import com.WingedVampires.parkingstar.R
 import com.WingedVampires.parkingstar.commons.experimental.extensions.QuietCoroutineExceptionHandler
 import com.WingedVampires.parkingstar.commons.experimental.extensions.awaitAndHandle
+import com.WingedVampires.parkingstar.commons.experimental.preference.CommonPreferences
 import com.WingedVampires.parkingstar.commons.ui.rec.withItems
 import com.WingedVampires.parkingstar.model.ParkingService
 import com.WingedVampires.parkingstar.view.items.UserDetailItem
 import com.WingedVampires.parkingstar.view.items.UserDetailType
 import es.dmoral.toasty.Toasty
+import kotlinx.android.synthetic.main.fragment_user.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -73,6 +75,11 @@ class UserFragment : Fragment() {
             Toasty.success(this@UserFragment.context!!, result.message, Toast.LENGTH_SHORT).show()
 
             val userInfo = result.data?.get(0) ?: return@launch
+            CommonPreferences.apply {
+                userName = userInfo.user_name
+                rank = userInfo.rank
+            }
+            tv_user_name.text = userInfo.user_name
             edit.imageResource = R.drawable.cd_person_edit
             val realName = UserDetailItem(
                 this@UserFragment.context!!,
@@ -181,9 +188,10 @@ class UserFragment : Fragment() {
 
             Toasty.success(this@UserFragment.context!!, result.message, Toast.LENGTH_SHORT).show()
 
+            loadAndRefresh()
         }
 
-        loadAndRefresh()
+
     }
 
 }

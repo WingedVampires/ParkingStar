@@ -127,7 +127,7 @@ class ReservationActivity : AppCompatActivity() {
                             .setCancelable(false)
                             .setSingleChoiceItems(
                                 carArray, 0
-                            ) { dialog, which ->
+                            ) { _, which ->
                                 selectedCar = which
                             }
                             .setPositiveButton("No, I think about it again.") { _, _ ->
@@ -191,7 +191,6 @@ class ReservationActivity : AppCompatActivity() {
                     val geocodeAddress = geocodeResult.geocodeAddressList[0]
                     val latitude = geocodeAddress.latLonPoint.latitude//纬度
                     val longititude = geocodeAddress.latLonPoint.longitude//经度
-                    val adcode = geocodeAddress.adcode//区域编码
 
                     if (!ParkingUtils.isAvilible(
                             this@ReservationActivity,
@@ -263,7 +262,7 @@ class ReservationActivity : AppCompatActivity() {
                 //添加车位
                 itemManager.refreshAll {
                     for (i in 1..parking.total_parkingSpace) {
-                        parkingCarItem(i, isPreservation.contains(i)) { view, viewHolder ->
+                        parkingCarItem(i, isPreservation.contains(i)) { _, viewHolder ->
                             val dialog = AlertDialog.Builder(this@ReservationActivity)
                                 .setMessage("Are you sure you want to reserve a parking space for ${i}?")
                                 .setCancelable(false)

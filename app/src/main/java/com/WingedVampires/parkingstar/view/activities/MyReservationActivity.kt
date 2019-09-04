@@ -48,7 +48,7 @@ class MyReservationActivity : AppCompatActivity() {
         val refresh = findViewById<ImageView>(R.id.iv_myreservation_refresh)
         mLoading = findViewById(R.id.cl_myreservation_loading)
         recyclerView = findViewById(R.id.rv_myreservation)
-        recyclerView.layoutManager = LinearLayoutManager(this) as RecyclerView.LayoutManager?
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
         mToolBar.apply {
             title = "MY RESERVATION"
@@ -81,32 +81,8 @@ class MyReservationActivity : AppCompatActivity() {
                         r.reserved_time,
                         true
                     ) { item ->
-                        deleteItem(r, item, totalList)
+                        deleteItem(r, item, this)
                     }
-                }
-            }
-            val listOfChecking = mutableListOf<Item>().apply {
-                totalList.filter { it.reserved_status == "待审核" }.forEach { r ->
-                    myreservationItem(
-                        r.parking_id,
-                        ParkingUtils.parkings[r.parking_id],
-                        r.reserved.toString(),
-                        r.reserved_time,
-                        true
-                    ) { item ->
-                        deleteItem(r, item, totalList)
-                    }
-                }
-            }
-            val listOfRefuse = mutableListOf<Item>().apply {
-                totalList.filter { it.reserved_status == "被拒绝" }.forEach { r ->
-                    myreservationItem(
-                        r.parking_id,
-                        ParkingUtils.parkings[r.parking_id],
-                        r.reserved.toString(),
-                        r.reserved_time,
-                        false
-                    )
                 }
             }
             val listOfCancel = mutableListOf<Item>().apply {
@@ -124,16 +100,8 @@ class MyReservationActivity : AppCompatActivity() {
             mLoading.visibility = View.GONE
             Toasty.success(this@MyReservationActivity, "加载完成", Toast.LENGTH_SHORT).show()
             itemManager.refreshAll {
-
-
                 myTitleItem("使用中") { viewHolder, item ->
                     showAndCloseMore(viewHolder, item, listOfRunning)
-                }
-                myTitleItem("待审核") { viewHolder, item ->
-                    showAndCloseMore(viewHolder, item, listOfChecking)
-                }
-                myTitleItem("被拒绝") { viewHolder, item ->
-                    showAndCloseMore(viewHolder, item, listOfRefuse)
                 }
                 myTitleItem("已取消") { viewHolder, item ->
                     showAndCloseMore(viewHolder, item, listOfCancel)
@@ -143,7 +111,7 @@ class MyReservationActivity : AppCompatActivity() {
         }
     }
 
-    private fun deleteItem(r: Reservation, item: MyreservationItem, list: List<Reservation>) {
+    private fun deleteItem(r: Reservation, item: MyreservationItem, list: MutableList<Item>) {
         if (mLoading.visibility != View.VISIBLE) mLoading.visibility = View.VISIBLE
         GlobalScope.launch(Dispatchers.Main + QuietCoroutineExceptionHandler) {
             val result = ParkingService.cancelReserve(
@@ -162,7 +130,7 @@ class MyReservationActivity : AppCompatActivity() {
 
             if (result.error_code == -1) {
                 itemManager.remove(item)
-                list.toMutableList().remove(r)
+                list.remove(item)
             }
         }
         mLoading.visibility = View.GONE

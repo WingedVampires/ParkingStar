@@ -30,14 +30,19 @@
 
     <EditText
         android:id="@+id/et_user_content"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginEnd="30dp"
         android:background="@null"
         android:hint="nin还没有填写呢"
+        android:layout_marginStart="60dp"
+        android:gravity="end"
+        android:imeOptions="actionNext"
+        android:singleLine="true"
+        app:layout_constraintLeft_toRightOf="@id/tv_user_title"
         android:textColor="#333333"
         android:textSize="20sp"
-        android:visibility="gone"
+
         app:layout_constraintBottom_toBottomOf="@id/tv_user_title"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@id/tv_user_title" />
